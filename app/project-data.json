@@ -1,0 +1,44 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Onboarding",
+      "owner": "Mona",
+      "status": "Active",
+      "recentActivity": "Published the first draft of the contributor quick-start guide.",
+      "priority": "High",
+      "summary": "Help new contributors find their first useful task and understand the team’s workflow. Review the guide and suggest any confusing steps."
+    },
+    {
+      "name": "Documentation Refresh",
+      "owner": "Alex",
+      "status": "Planning",
+      "recentActivity": "Collected feedback on the most frequently visited setup pages.",
+      "priority": "Medium",
+      "summary": "Make the project documentation easier to scan and keep current. Contributors can help by flagging outdated instructions or proposing clearer examples."
+    },
+    {
+      "name": "Accessibility Improvements",
+      "owner": "Jordan",
+      "status": "Active",
+      "recentActivity": "Completed a keyboard-navigation review of the main contributor flows.",
+      "priority": "High",
+      "summary": "Improve keyboard access, readable contrast, and assistive-technology support. Try the key workflows without a mouse and share anything that gets in your way."
+    },
+    {
+      "name": "Release Automation",
+      "owner": "Sam",
+      "status": "Blocked",
+      "recentActivity": "Documented the required release checks while awaiting CI configuration access.",
+      "priority": "Critical",
+      "summary": "Reduce repetitive release work with reliable automated checks. The next step depends on CI access; contributors can review the proposed checklist in the meantime."
+    },
+    {
+      "name": "Community Feedback",
+      "owner": "Taylor",
+      "status": "Complete",
+      "recentActivity": "Shared the monthly feedback themes and follow-up actions with the team.",
+      "priority": "Low",
+      "summary": "Turn community feedback into clear follow-up tasks. The current review is complete, and new feedback can be added for the next cycle."
+    }
+  ]
+}

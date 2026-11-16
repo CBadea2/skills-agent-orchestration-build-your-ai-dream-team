@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A quick, contributor-friendly overview of project status, ownership, activity, and priority.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="page-header page-shell">
+      <p class="eyebrow">Team overview</p>
+      <h1>Project Pulse</h1>
+      <p>A clear snapshot of what each team is working on, what has changed recently, and where contributors can help.</p>
+    </header>
+
+    <main>
+      <section aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <h2 id="projects-heading">Projects</h2>
+          <p>Current status, ownership, and next steps at a glance.</p>
+        </div>
+        <p id="loading-state" class="empty-state" role="status" aria-live="polite">Loading project updates…</p>
+        <div id="project-list" class="dashboard" aria-labelledby="projects-heading"></div>
+      </section>
+    </main>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const loadingState = document.querySelector("#loading-state");
+
+      function projectText(value, fallback) {
+        if (typeof value !== "string" && typeof value !== "number") {
+          return fallback;
+        }
+
+        const text = String(value).trim();
+        return text || fallback;
+      }
+
+      function createTextElement(tagName, className, text) {
+        const element = document.createElement(tagName);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function statusModifier(status) {
+        const normalized = status.toLowerCase();
+        const modifiers = {
+          active: "active",
+          planning: "planning",
+          planned: "planning",
+          blocked: "blocked",
+          complete: "complete",
+          completed: "complete"
+        };
+        return modifiers[normalized] || "unknown";
+      }
+
+      function priorityModifier(priority) {
+        const normalized = priority.toLowerCase();
+        const modifiers = {
+          low: "low",
+          medium: "medium",
+          high: "high",
+          critical: "critical"
+        };
+        return modifiers[normalized] || "unknown";
+      }
+
+      function createProjectCard(project, index) {
+        const name = projectText(project.name, "Untitled project");
+        const owner = projectText(project.owner, "Owner not provided");
+        const status = projectText(project.status, "Status not provided");
+        const recentActivity = projectText(project.recentActivity, "No recent activity has been added.");
+        const priority = projectText(project.priority, "Priority not provided");
+        const summary = projectText(
+          project.summary,
+          "A contributor-friendly summary has not been added yet."
+        );
+
+        const card = document.createElement("article");
+        card.className = "project-card";
+        card.setAttribute("aria-labelledby", `project-name-${index + 1}`);
+
+        const cardHeader = document.createElement("header");
+        cardHeader.className = "card-heading";
+
+        const heading = createTextElement("h3", "", name);
+        heading.id = `project-name-${index + 1}`;
+        cardHeader.append(heading);
+
+        const badges = document.createElement("div");
+        badges.setAttribute("aria-label", "Project indicators");
+
+        const statusBadge = createTextElement("span", `status status--${statusModifier(status)}`, status);
+        statusBadge.setAttribute("aria-label", `Status: ${status}`);
+        const priorityBadge = createTextElement(
+          "span",
+          `priority priority--${priorityModifier(priority)}`,
+          priority
+        );
+        priorityBadge.setAttribute("aria-label", `Priority: ${priority}`);
+        badges.append(statusBadge, priorityBadge);
+        cardHeader.append(badges);
+
+        card.append(
+          cardHeader,
+          createTextElement("p", "owner", `Owner: ${owner}`),
+          createTextElement("p", "summary", summary)
+        );
+
+        const activity = document.createElement("p");
+        activity.className = "recent-activity";
+        activity.append(
+          createTextElement("strong", "", "Recent activity"),
+          document.createTextNode(recentActivity)
+        );
+        card.append(activity);
+
+        return card;
+      }
+
+      function showMessage(className, heading, message, role) {
+        const state = document.createElement("div");
+        state.className = className;
+        if (role) {
+          state.setAttribute("role", role);
+        }
+
+        state.append(
+          createTextElement("h2", "", heading),
+          createTextElement("p", "", message)
+        );
+        projectList.replaceChildren(state);
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json", {
+            headers: { Accept: "application/json" }
+          });
+          if (!response.ok) {
+            throw new Error(`Project data request failed (${response.status}).`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a top-level projects array.");
+          }
+          if (data.projects.some((project) => !project || typeof project !== "object" || Array.isArray(project))) {
+            throw new Error("Project data contains an invalid project entry.");
+          }
+
+          loadingState.hidden = true;
+          if (data.projects.length === 0) {
+            showMessage(
+              "empty-state",
+              "No projects yet",
+              "Project updates will appear here as soon as the team adds them."
+            );
+            return;
+          }
+
+          const cards = data.projects.map(createProjectCard);
+          projectList.replaceChildren(...cards);
+        } catch (error) {
+          loadingState.hidden = true;
+          showMessage(
+            "error-state",
+            "Project updates are unavailable",
+            "We couldn’t load the project data. Check that project-data.json is valid and that the dashboard is served over HTTP, then reload this page.",
+            "alert"
+          );
+          console.error("Unable to load Project Pulse data:", error);
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
